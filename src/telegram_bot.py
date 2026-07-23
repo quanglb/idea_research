@@ -48,8 +48,16 @@ def send_telegram_report(report_text: str, token: str, chat_id: str) -> bool:
         try:
             r = requests.post(url, json=payload, timeout=15)
             if r.status_code != 200:
-                print(f"Telegram API error: {r.status_code} - {r.text}")
-                success = False
+                if "can't parse entities" in r.text or "parse" in r.text.lower():
+                    print("Khôi phục: Phát hiện lỗi định dạng Markdown của Telegram, đang thử gửi lại dưới dạng văn bản thường...")
+                    payload.pop("parse_mode", None)
+                    r_retry = requests.post(url, json=payload, timeout=15)
+                    if r_retry.status_code != 200:
+                        print(f"Telegram API retry error: {r_retry.status_code} - {r_retry.text}")
+                        success = False
+                else:
+                    print(f"Telegram API error: {r.status_code} - {r.text}")
+                    success = False
         except Exception as e:
             print(f"Exception sending to Telegram: {e}")
             success = False
