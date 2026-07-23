@@ -33,8 +33,8 @@ def test_analyze_ideas_success():
         call_kwargs = mock_client_instance.models.generate_content.call_args.kwargs
         assert call_kwargs.get("model") == "gemini-flash-latest"
         prompt = call_kwargs.get("contents")
-        assert "Business & SaaS" in prompt
-        assert "Tech & Open Source" in prompt
+        assert "KINH DOANH & SAAS" in prompt
+        assert "CÔNG NGHỆ & OPEN-SOURCE" in prompt
         assert "YouTube & Content" in prompt
         assert "AI Code Assistant" in prompt
 
