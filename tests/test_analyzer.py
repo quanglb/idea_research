@@ -31,7 +31,7 @@ def test_analyze_ideas_success():
         mock_client_instance.models.generate_content.assert_called_once()
         
         call_kwargs = mock_client_instance.models.generate_content.call_args.kwargs
-        assert call_kwargs.get("model") == "gemini-2.5-flash"
+        assert call_kwargs.get("model") == "gemini-flash-latest"
         prompt = call_kwargs.get("contents")
         assert "Business & SaaS" in prompt
         assert "Tech & Open Source" in prompt

@@ -42,11 +42,21 @@ Hãy phân tích và chọn ra:
 - Với mỗi ý tưởng, trình bày rõ tên ý tưởng, nguồn/liên kết (nếu có), tóm tắt và lý do/tiềm năng đánh giá.
 """
         
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
-        return response.text
+        models_to_try = ["gemini-flash-latest", "gemini-2.0-flash-001", "gemini-3.5-flash", "gemini-flash-lite-latest"]
+        for model_name in models_to_try:
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt
+                )
+                if response and response.text:
+                    return response.text
+            except Exception as e:
+                logger.warning(f"Thử model {model_name} thất bại: {e}, thử model tiếp theo...")
+                continue
+                
+        return "Lỗi: Tất cả các mô hình Gemini thử nghiệm đều không khả dụng."
     except Exception as e:
         logger.error(f"Lỗi khi gọi Gemini API trong analyze_ideas: {e}")
         return f"Lỗi khi phân tích ý tưởng: {str(e)}"
+
