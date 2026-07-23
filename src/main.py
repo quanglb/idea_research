@@ -15,6 +15,28 @@ from src.scraper import (
 from src.analyzer import analyze_ideas
 from src.telegram_bot import send_telegram_report
 
+from datetime import datetime, timezone, timedelta
+
+def get_report_header() -> str:
+    tz_vn = timezone(timedelta(hours=7))
+    now_vn = datetime.now(tz_vn)
+    time_str = now_vn.strftime("%H:%M:%S - Ngày %d/%m/%Y")
+    hour = now_vn.hour
+
+    if 5 <= hour < 12:
+        session_str = "PHIÊN SÁNG (09:00)"
+    elif 12 <= hour < 18:
+        session_str = "PHIÊN CHIỀU (14:00)"
+    else:
+        session_str = "PHIÊN CẬP NHẬT ĐỘT XUẤT"
+
+    return (
+        f"📅 *BÁO CÁO CẬP NHẬT Ý TƯỞNG AI - {session_str}*\n"
+        f"🕒 *Thời gian phát hành*: {time_str}\n"
+        f"🔍 *Nguồn nghiên cứu*: Hacker News, Product Hunt, Reddit, GitHub Trending, Dev.to, Lobsters\n"
+        f"─────────────────────────────\n\n"
+    )
+
 def run_pipeline(debug: bool = False):
     print("Bắt đầu thu thập dữ liệu trong 12 giờ qua...")
     
@@ -29,7 +51,7 @@ def run_pipeline(debug: bool = False):
     print(f"Tổng hợp thu thập được {len(all_ideas)} tin tức thô.")
     
     if not all_ideas:
-        msg = "Không có ý tưởng mới nào được tìm thấy trong 12 giờ qua."
+        msg = get_report_header() + "Không có ý tưởng mới nào được tìm thấy trong 12 giờ qua."
         print(msg)
         if not debug:
             token = os.environ.get("TELEGRAM_BOT_TOKEN")
@@ -43,7 +65,8 @@ def run_pipeline(debug: bool = False):
         return
         
     print("Đang gửi dữ liệu sang Gemini API để phân tích...")
-    report = analyze_ideas(all_ideas, api_key=gemini_key)
+    raw_report = analyze_ideas(all_ideas, api_key=gemini_key)
+    report = get_report_header() + raw_report
     
     if debug:
         print("\n=== [DEBUG MODE] BÁO CÁO CỦA BẠN ===\n")

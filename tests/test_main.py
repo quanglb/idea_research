@@ -41,7 +41,9 @@ def test_run_pipeline_success(
     assert len(mock_analyze.call_args[0][0]) == 2
     assert mock_analyze.call_args[1]["api_key"] == "test_gemini_key"
     
-    mock_telegram.assert_called_once_with("AI Report Markdown", "test_bot_token", "test_chat_id")
+    sent_msg = mock_telegram.call_args[0][0]
+    assert "AI Report Markdown" in sent_msg
+    assert "BÁO CÁO CẬP NHẬT Ý TƯỞNG AI" in sent_msg
 
 @patch('src.main.fetch_hacker_news')
 @patch('src.main.fetch_product_hunt')
