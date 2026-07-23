@@ -6,6 +6,10 @@ on:
   schedule:
     - cron: '0 2 * * *'  # 9:00 AM VN Time (02:00 UTC)
     - cron: '0 7 * * *'  # 2:00 PM VN Time (07:00 UTC)
+    # ===== [TEST TEMPORARY SCHEDULE FOR TODAY 2026-07-23] =====
+    - cron: '30 4 23 7 *' # TEST: 11:30 AM VN Time today (04:30 UTC)
+    - cron: '0 5 23 7 *'  # TEST: 12:00 PM VN Time today (05:00 UTC)
+    # ==========================================================
   workflow_dispatch:      # Allows manual trigger
 
 jobs:
