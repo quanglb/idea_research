@@ -4,7 +4,9 @@ from src.scraper import (
     fetch_hacker_news,
     fetch_product_hunt,
     fetch_reddit,
-    fetch_github_trending
+    fetch_github_trending,
+    fetch_devto,
+    fetch_lobsters
 )
 
 @patch('src.scraper.requests.get')
@@ -87,10 +89,10 @@ def test_fetch_reddit_success(mock_get):
     mock_get.return_value = mock_response
     
     results = fetch_reddit(hours=12)
-    assert len(results) == 2  # one for sideproject, one for saas
+    assert len(results) == 6  # 6 subreddits tested
     assert results[0]['title'] == "Reddit Idea"
     assert results[0]['link'] == "https://www.reddit.com/r/saas/comments/xyz"
-    assert results[0]['source'] == "Reddit"
+    assert "Reddit" in results[0]['source']
 
 @patch('src.scraper.requests.get')
 def test_fetch_reddit_error(mock_get):
@@ -119,6 +121,42 @@ def test_fetch_github_trending_success(mock_get):
 
 @patch('src.scraper.requests.get')
 def test_fetch_github_trending_error(mock_get):
-    mock_get.side_effect = Exception("GitHub connection error")
+    mock_get.side_effect = Exception("Scrape error")
     results = fetch_github_trending(hours=12)
     assert results == []
+
+@patch('src.scraper.requests.get')
+def test_fetch_devto_success(mock_get):
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = [
+        {
+            "title": "Dev.to Article",
+            "url": "https://dev.to/article",
+            "description": "Dev.to desc"
+        }
+    ]
+    mock_get.return_value = mock_response
+    results = fetch_devto(hours=12)
+    assert len(results) == 1
+    assert results[0]['title'] == "Dev.to Article"
+    assert results[0]['source'] == "Dev.to Tech Trending"
+
+@patch('src.scraper.feedparser.parse')
+def test_fetch_lobsters_success(mock_parse):
+    import time
+    mock_feed = MagicMock()
+    recent_time = time.gmtime(time.time() - 3600)
+    mock_feed.entries = [
+        MagicMock(
+            title="Lobsters Story",
+            link="https://lobste.rs/s/xyz",
+            summary="Lobsters summary",
+            published_parsed=recent_time
+        )
+    ]
+    mock_parse.return_value = mock_feed
+    results = fetch_lobsters(hours=12)
+    assert len(results) == 1
+    assert results[0]['title'] == "Lobsters Story"
+    assert results[0]['source'] == "Lobsters Tech"

@@ -8,7 +8,9 @@ from src.scraper import (
     fetch_hacker_news,
     fetch_product_hunt,
     fetch_reddit,
-    fetch_github_trending
+    fetch_github_trending,
+    fetch_devto,
+    fetch_lobsters
 )
 from src.analyzer import analyze_ideas
 from src.telegram_bot import send_telegram_report
@@ -20,8 +22,10 @@ def run_pipeline(debug: bool = False):
     ph_ideas = fetch_product_hunt(hours=12)
     reddit_ideas = fetch_reddit(hours=12)
     github_ideas = fetch_github_trending(hours=12)
+    devto_ideas = fetch_devto(hours=12)
+    lobsters_ideas = fetch_lobsters(hours=12)
     
-    all_ideas = hn_ideas + ph_ideas + reddit_ideas + github_ideas
+    all_ideas = hn_ideas + ph_ideas + reddit_ideas + github_ideas + devto_ideas + lobsters_ideas
     print(f"Tổng hợp thu thập được {len(all_ideas)} tin tức thô.")
     
     if not all_ideas:

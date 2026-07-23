@@ -45,12 +45,12 @@ def fetch_product_hunt(hours: int = 12) -> list[dict]:
         return []
 
 def fetch_reddit(hours: int = 12) -> list[dict]:
-    subreddits = ["sideproject", "saas"]
+    subreddits = ["sideproject", "saas", "Entrepreneur", "microSaaS", "ArtificialInteligence", "LocalLLaMA"]
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
     now = time.time()
     results = []
     for sub in subreddits:
-        url = f"https://www.reddit.com/r/{sub}/new.json?limit=30"
+        url = f"https://www.reddit.com/r/{sub}/new.json?limit=20"
         try:
             r = requests.get(url, headers=headers, timeout=10)
             if r.status_code != 200:
@@ -64,12 +64,53 @@ def fetch_reddit(hours: int = 12) -> list[dict]:
                         "title": data.get("title"),
                         "link": f"https://www.reddit.com{data.get('permalink')}",
                         "description": data.get("selftext", ""),
-                        "source": "Reddit",
+                        "source": f"Reddit (r/{sub})",
                         "created_at": int(created_utc)
                     })
         except Exception:
             pass
     return results
+
+def fetch_devto(hours: int = 12) -> list[dict]:
+    url = "https://dev.to/api/articles?state=rising&per_page=30"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    try:
+        r = requests.get(url, headers=headers, timeout=10)
+        if r.status_code != 200:
+            return []
+        articles = r.json()
+        results = []
+        for article in articles:
+            results.append({
+                "title": article.get("title"),
+                "link": article.get("url"),
+                "description": article.get("description", ""),
+                "source": "Dev.to Tech Trending",
+                "created_at": int(time.time())
+            })
+        return results
+    except Exception:
+        return []
+
+def fetch_lobsters(hours: int = 12) -> list[dict]:
+    url = "https://lobste.rs/rss"
+    try:
+        feed = feedparser.parse(url)
+        now = time.time()
+        results = []
+        for entry in feed.entries:
+            published_time = time.mktime(entry.published_parsed)
+            if now - published_time <= hours * 3600:
+                results.append({
+                    "title": entry.title,
+                    "link": entry.link,
+                    "description": getattr(entry, "summary", ""),
+                    "source": "Lobsters Tech",
+                    "created_at": int(published_time)
+                })
+        return results
+    except Exception:
+        return []
 
 def fetch_github_trending(hours: int = 12) -> list[dict]:
     url = "https://github.com/trending"

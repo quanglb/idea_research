@@ -7,15 +7,19 @@ from src.main import run_pipeline
 @patch('src.main.fetch_product_hunt')
 @patch('src.main.fetch_reddit')
 @patch('src.main.fetch_github_trending')
+@patch('src.main.fetch_devto')
+@patch('src.main.fetch_lobsters')
 @patch('src.main.analyze_ideas')
 @patch('src.main.send_telegram_report')
 def test_run_pipeline_success(
-    mock_telegram, mock_analyze, mock_github, mock_reddit, mock_ph, mock_hn
+    mock_telegram, mock_analyze, mock_lobsters, mock_devto, mock_github, mock_reddit, mock_ph, mock_hn
 ):
     mock_hn.return_value = [{"title": "HN Idea", "link": "http://a", "description": "A", "source": "HN"}]
     mock_ph.return_value = [{"title": "PH Idea", "link": "http://b", "description": "B", "source": "PH"}]
     mock_reddit.return_value = []
     mock_github.return_value = []
+    mock_devto.return_value = []
+    mock_lobsters.return_value = []
     mock_analyze.return_value = "AI Report Markdown"
     mock_telegram.return_value = True
 
@@ -68,14 +72,18 @@ def test_run_pipeline_debug_mode(
 @patch('src.main.fetch_product_hunt')
 @patch('src.main.fetch_reddit')
 @patch('src.main.fetch_github_trending')
+@patch('src.main.fetch_devto')
+@patch('src.main.fetch_lobsters')
 @patch('src.main.send_telegram_report')
 def test_run_pipeline_no_ideas(
-    mock_telegram, mock_github, mock_reddit, mock_ph, mock_hn
+    mock_telegram, mock_lobsters, mock_devto, mock_github, mock_reddit, mock_ph, mock_hn
 ):
     mock_hn.return_value = []
     mock_ph.return_value = []
     mock_reddit.return_value = []
     mock_github.return_value = []
+    mock_devto.return_value = []
+    mock_lobsters.return_value = []
 
     env_vars = {
         "TELEGRAM_BOT_TOKEN": "token",
