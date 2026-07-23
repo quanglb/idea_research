@@ -124,11 +124,29 @@ jobs:
 
 ## 6. Verification Plan
 
-### Automated/Local Tests
-* Run script manually using dummy environment variables pointing to test Telegram bot & channels:
-  `python src/main.py`
-* Verify scraping outputs for each provider by running a debug mode (`python src/main.py --debug`).
+### Automated Tests
+We will implement automated unit tests using `pytest` to verify the codebase's resilience. External dependencies (APIs, feeds) will be mocked using `unittest.mock` to ensure offline stability and deterministic test execution.
+
+* **Scraper Test Case**: Test parsing logic for:
+  * Hacker News Algolia response (both empty and populated).
+  * Product Hunt RSS feed parsing (verifying published date filters).
+  * Reddit JSON response (verifying UA configuration and rate-limit handling).
+  * GitHub Trending HTML parsing (verifying scraper handles HTML changes without crashing).
+* **Core Logic Test Case**:
+  * Verify time filtering (deduplication of articles older than 12 hours).
+  * Verify Gemini integration formatting & handling of unexpected AI outputs.
+* **Telegram Integration Test Case**:
+  * Test message validation.
+  * Verify message splitting functionality (splits categories into multiple Telegram messages if the content length exceeds 4096 characters).
+  * Mock HTTP POST requests to `https://api.telegram.org`.
+
+We will run the test suite locally and inside the CI/CD pipeline:
+```bash
+pytest tests/
+```
 
 ### Manual Verification
+* Run script manually in debug mode (`python src/main.py --debug`) which logs raw data and outputs the generated report without sending to Telegram.
 * Ensure Telegram messages are correctly formatted and fit within the character limits.
 * Ensure all links are clickable and point to the correct source.
+
